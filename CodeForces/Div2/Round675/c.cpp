@@ -1,0 +1,28 @@
+#include <bits/stdc++.h>
+//#include <atcoder/all>
+#define rep(i, n) for (int i=0; i < (n); i++)
+using namespace std;
+//using namespace atcoder;
+typedef long long ll;
+typedef unsigned int uint;
+typedef unsigned long long ull;
+typedef pair<int, int> P;
+const int INF = 1 << 30;
+const ll LINF = 1LL << 61;
+const int NIL = -1;
+const int MAX = 10000;
+const int MOD = 1000000007;
+const double pi = 3.141592653589;
+
+int main() {
+    string n_str;
+    cin >> n_str;
+    vector<string> ss(n_str.size()+1);
+    for(int i=1;i<=n_str.size();i++){
+        ss[i] = ss[i-1] + n_str[i-1];
+    }
+    
+
+
+    return 0;
+}

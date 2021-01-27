@@ -1,0 +1,8 @@
+{
+    "python.pythonPath": "/Users/isseiterada/python_envs/comp_env/bin/python" ,
+    "files.associations": {
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "random": "cpp"
+    }
+}
