@@ -37,7 +37,7 @@ class UnionFind:
 
         return x
 
-    def same_check(self, x: int, y: int) -> bool:
+    def is_same(self, x: int, y: int) -> bool:
         assert 0 <= x < self._n
         assert 0 <= y < self._n
 
