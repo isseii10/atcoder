@@ -1,4 +1,4 @@
-mod = 10**9 + 7
+MOD = 10**9 + 7
 # 分かりやすいけど遅い
 """
 def comb(n, r):
@@ -32,7 +32,7 @@ def COMinit():
         fac[j] = fac[j - 1] * j % MOD
 
     inv[MAX] = pow(fac[MAX], MOD - 2, MOD)
-    for j in range(MAX - 1, -1, -1):
+    for j in range(MAX)[::-1]:
         inv[j] = inv[j + 1] * (j + 1) % MOD
 
 def COM(n, r):
