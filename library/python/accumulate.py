@@ -1,13 +1,22 @@
-#2次元累積和
-def accumulate2(h, w, target):
-    """
-    :param h: h行
-    :param w: w列
-    :param target: h*wのリスト(累積和したいリスト）
-    :return: 累積和したリスト
-    """
-    s_2 = [[0] * (w + 1) for _ in range(h + 1)]
-    for i in range(w):
-        for j in range(h):
-            s_2[i + 1][j + 1] = s_2[i][j + 1] + s_2[i + 1][j] - s_2[i][j] + target[i][j]
-    return s_2
+class Accumulate2(list):
+    def __init__(self, array) -> None:
+        self._array = array
+        self.h = len(self._array)
+        self.w = len(self._array[0])
+        self.sum2d = [[0]*(self.w+1) for _ in range(self.h+1)]
+
+    def build(self) -> None:
+        for i in range(self.h):
+            for j in range(self.w):
+                self.sum2d[i+1][j+1] = (self.sum2d[i+1][j]
+                                      + self.sum2d[i][j+1]
+                                      - self.sum2d[i][j]
+                                      + self._array[i][j])
+
+    def get(self, a: tuple, b: tuple) -> int:
+        """
+        a, bは（y座標、x座標）なのに注意
+        """
+        ay, ax = a
+        by, bx = b
+        return self.sum2d[by][bx]-self.sum2d[by][ax]-self.sum2d[ay][bx]+self.sum2d[ay][ax]
