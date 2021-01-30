@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
-//#include <atcoder/all>
+#include <atcoder/all>
 #define rep(i, n) for (int i=0; i < (n); i++)
 using namespace std;
-//using namespace atcoder;
+using namespace atcoder;
 typedef long long ll;
 typedef unsigned int uint;
 typedef unsigned long long ull;
@@ -15,5 +15,6 @@ const int MOD = 1000000007;
 const double pi = 3.141592653589;
 
 int main() {
+    
     return 0;
 }

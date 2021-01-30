@@ -15,7 +15,6 @@ const int MOD = 1000000007;
 const double pi = 3.141592653589;
 
 int main() {
-    int h, w; cin >> h >> w;
     
     return 0;
 }
