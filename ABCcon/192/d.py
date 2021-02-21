@@ -18,12 +18,20 @@ def conv(X : str, n : int) -> int:
 def main():
     x = input()[:-1]
     m = int(input())
-
+    #------------------------
+    #xの長さが１の時に気づけなかった
+    if len(x) == 1:
+        if int(x) <= m:
+            print(1)
+        else:print(0)
+        exit()
+    #------------------------
+    
     d = 0
     for c in x:
         d = max(int(c), d)
     ok = d
-    ng = d + 10**1000
+    ng = d + 10**100
     while ng - ok > 1:
         mid = (ok + ng) // 2
         #print(conv(x, mid), mid)
