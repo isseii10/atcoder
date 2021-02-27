@@ -24,18 +24,18 @@ def main():
             if G[i][j] != INF:
                 edge[i].append((j, G[i][j]))
     
+
     for i in range(n):
         time = [INF]*n
         time[i] = 0
         q = []
-        heappush(q, (time[i], i))
+        heappush((time[i], i))
         while q:
             p_cost, p = heappop(q)
-            if time[p] < p_cost:continue
             for c, cost in edge[p]:
                 if c == i and time[i]==0:
                     time[c] = p_cost + cost
-                if time[c] <= p_cost + cost:continue
+                if time[c] < p_cost + cost:continue
                 time[c] = p_cost + cost
                 heappush(q, (time[c], c))
 

@@ -1,5 +1,10 @@
 class SegTree(object):
     def __init__(self, N, op, u_data):
+        """
+        N := node数
+        op := モノイド同士の演算
+        u_data := 単位源
+        """
         self._n = N
         self.log = (N-1).bit_length()
         self.size = 1 << self.log
