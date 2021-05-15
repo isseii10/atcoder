@@ -51,7 +51,7 @@ class UnionFind:
     def groups(self) -> typing.List[typing.List[int]]:
         find_buf = [self.find(i) for i in range(self._n)]
 
-        group_list: typing.List[typing.List[int]] = [[] for _ in range(self.n)]
-        for i in range(self.n):
+        group_list: typing.List[typing.List[int]] = [[] for _ in range(self._n)]
+        for i in range(self._n):
             group_list[find_buf[i]].append(i)
         return list(filter(lambda r: r, group_list))

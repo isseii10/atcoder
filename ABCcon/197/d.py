@@ -21,9 +21,8 @@ def dot(A, B):
     return C
 
 def rot(kaku):
-    kaku = kaku * (2 * math.pi) / 360
-    return [[math.cos(-kaku), -math.sin(-kaku)],
-              [math.sin(-kaku), math.cos(-kaku)]]
+    return [[math.cos(kaku), -math.sin(kaku)],
+              [math.sin(kaku), math.cos(kaku)]]
 
 def length(vec1, vec2):
     return math.sqrt((vec1[0]-vec2[0])**2 + (vec1[1]-vec2[1])**2)
@@ -34,16 +33,16 @@ def main():
     x_0, y_0 = map(int, input().split())
     x_op, y_op = map(int, input().split())
     len_op = length((x_0, y_0), (x_op, y_op))
-    naikaku = 180*(n-2)/n
-    naikaku /= 2
-    print(naikaku)
-    vec = [[(x_op-x_0)/len_op], [(y_op-y_0)/len_op]]
-    rotate = rot(naikaku)
+    x_0 -= len_op / 2
+    y_0 -= len_op / 2
+    kaku = 2*math.pi / n
+    vec = [[x_0], [y_0]]
+    rotate = rot(kaku)
     print(rotate)
     vec1 = dot(rotate, vec)
     print(vec1)
-    ans_x = (vec1[0][0] + x_0)*len_op*math.cos(naikaku)
-    ans_y = (vec1[1][0]+ y_0)*len_op*math.cos(naikaku)
+    ans_x = vec1[0][0] + len_op / 2
+    ans_y = vec1[1][0] + len_op / 2
     print(ans_x, ans_y)
 
 
