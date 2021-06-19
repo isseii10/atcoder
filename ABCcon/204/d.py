@@ -10,12 +10,11 @@ MOD = 10**9+7
 
 def main():
     n = int(input())
-    mt = []
-    for _ in range(n):
-        s, t = input().split()
-        t = int(t)
-        mt.append([t, s])
-    mt.sort()
-    print(mt[-2][1])
+    t = list(map(int, input().split()))
+    dp = [0]*(n+1)
+    total = sum(t)
+    #dp[i]:= i番目までの料理の最小時間
+
+
 if __name__ == '__main__':
     main()

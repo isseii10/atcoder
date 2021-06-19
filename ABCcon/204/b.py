@@ -10,12 +10,10 @@ MOD = 10**9+7
 
 def main():
     n = int(input())
-    mt = []
-    for _ in range(n):
-        s, t = input().split()
-        t = int(t)
-        mt.append([t, s])
-    mt.sort()
-    print(mt[-2][1])
+    a = list(map(int, input().split()))
+    for i in range(n):
+        a[i] = max(0, a[i]-10)
+    print(sum(a))
+
 if __name__ == '__main__':
     main()

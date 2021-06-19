@@ -10,12 +10,12 @@ MOD = 10**9+7
 
 def main():
     n = int(input())
-    mt = []
-    for _ in range(n):
-        s, t = input().split()
-        t = int(t)
-        mt.append([t, s])
-    mt.sort()
-    print(mt[-2][1])
+    n *= 1.08
+    if int(n) < 206:
+        print('Yay!')
+    elif int(n) == 206:
+        print('so-so')
+    else:
+        print(':(')
 if __name__ == '__main__':
     main()
