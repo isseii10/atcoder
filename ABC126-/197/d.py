@@ -1,5 +1,5 @@
 import sys
-import math
+from math import pi, cos, sin
 
 input = sys.stdin.readline
 sys.setrecursionlimit(10**7)
@@ -18,33 +18,22 @@ def dot(A, B):
         for j in range(len(B[0])):
             for k in range(len(B)):
                 C[i][j] += A[i][k]*B[k][j]
-    return C
+    return C 
 
-def rot(kaku):
-    return [[math.cos(kaku), -math.sin(kaku)],
-              [math.sin(kaku), math.cos(kaku)]]
-
-def length(vec1, vec2):
-    return math.sqrt((vec1[0]-vec2[0])**2 + (vec1[1]-vec2[1])**2)
-     
 
 def main():
     n = int(input())
-    x_0, y_0 = map(int, input().split())
+    x0, y0 = map(int, input().split())
     x_op, y_op = map(int, input().split())
-    len_op = length((x_0, y_0), (x_op, y_op))
-    x_0 -= len_op / 2
-    y_0 -= len_op / 2
-    kaku = 2*math.pi / n
-    vec = [[x_0], [y_0]]
-    rotate = rot(kaku)
-    print(rotate)
-    vec1 = dot(rotate, vec)
-    print(vec1)
-    ans_x = vec1[0][0] + len_op / 2
-    ans_y = vec1[1][0] + len_op / 2
-    print(ans_x, ans_y)
 
+    x_c, y_c = (x0 + x_op)/2, (y0+y_op)/2
+    theta = (2 * pi)/ n # rad
 
+    A = [[cos(theta), -sin(theta)], [sin(theta), cos(theta)]]
+
+    ans = dot(A, [[x0-x_c], [y0-y_c]])
+    #print(ans)
+    print(ans[0][0]+x_c, ans[1][0]+y_c)
+    
 if __name__ == '__main__':
     main()
