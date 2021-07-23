@@ -30,7 +30,6 @@ def main():
         print(1, kaburi[1] + 1)
         exit()
     #modに被りなし
-    for i in range(200):
         
 
 
