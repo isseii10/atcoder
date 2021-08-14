@@ -1,57 +1,59 @@
-import typing
-class UnionFind:
-    def __init__(self, n) -> None:
-        self._n = n
-        self.par_or_size = [-1]*n
-        
+from collections import defaultdict
 
-    def find(self, x: int) -> int:
-        assert 0 <= x < self._n
+class UnionFind():
+    def __init__(self, n):
+        self.n = n
+        """
+        parents[x] := xが根の場合 -(xのグループの要素数)
+                      それ以外の場合 親要素
+        を返す
+        つまりbySize
+        """
+        self.parents = [-1] * n
 
-        parent = self.par_or_size[x]
-        while parent >= 0:
-            if self.par_or_size[parent] < 0:
-                return parent
-            self.par_or_size[x], x, parent = (
-                self.par_or_size[parent],
-                self.par_or_size[parent],
-                self.par_or_size[self.par_or_size[parent]]
-            )
-        return x
+    def find(self, x):
+        #findが呼ばれた時点で経路圧縮される(根へ繋ぎ換え)
+        if self.parents[x] < 0:
+            return x
+        else:
+            self.parents[x] = self.find(self.parents[x])
+            return self.parents[x]
 
-    def union(self, x: int, y: int) -> int:
-        assert 0 <= x < self._n
-        assert 0 <= y < self._n
-
+    def union(self, x, y):
         x = self.find(x)
         y = self.find(y)
 
         if x == y:
-            return x
+            return
 
-        if -self.par_or_size[x] < -self.par_or_size[y]:
-                x, y = y, x
-        
-        self.par_or_size[x] += self.par_or_size[y]
-        self.par_or_size[y] = x
+        if self.parents[x] > self.parents[y]:
+            x, y = y, x
 
-        return x
+        self.parents[x] += self.parents[y]
+        self.parents[y] = x
 
-    def is_same(self, x: int, y: int) -> bool:
-        assert 0 <= x < self._n
-        assert 0 <= y < self._n
+    def size(self, x):
+        return -self.parents[self.find(x)]
 
-        return self.find(x) == self.find(y)  # 根同じならTrue違うならFalseを返す
+    def is_same(self, x, y):
+        return self.find(x) == self.find(y)
 
-    def size(self, x: int) -> int:
-        assert 0 <= x < self._n
+    def members(self, x):
+        root = self.find(x)
+        return [i for i in range(self.n) if self.find(i) == root]
 
-        return -self.par_or_size[self.find(x)]
-    
-    def groups(self) -> typing.List[typing.List[int]]:
-        find_buf = [self.find(i) for i in range(self._n)]
+    def roots(self):
+        return [i for i, x in enumerate(self.parents) if x < 0]
 
-        group_list: typing.List[typing.List[int]] = [[] for _ in range(self._n)]
-        for i in range(self._n):
-            group_list[find_buf[i]].append(i)
-        return list(filter(lambda r: r, group_list))
+    def group_count(self):
+        return len(self.roots())
+
+    def all_group_members(self):
+        group_members = defaultdict(list)
+        for member in range(self.n):
+            group_members[self.find(member)].append(member)
+        return group_members
+
+    #print用
+    def __str__(self):
+        return '\n'.join(f'{r}: {m}' for r, m in self.all_group_members().items())
