@@ -1,12 +1,3 @@
-import sys
-
-input = sys.stdin.readline
-sys.setrecursionlimit(10**7)
-
-INF = float('inf')
-MOD = 10**9+7
-#MOD = 998244353
-
 class Binary_Trie:
     """ Reference
     https://judge.yosupo.jp/submission/35057
@@ -274,20 +265,3 @@ class Binary_Trie:
         return self.kth_element(index)
  
 #==================================================
-
-
-def main():
-    l, q = map(int, input().split())
-    bt = Binary_Trie(l)
-    bt.insert(0)
-    bt.insert(l)
-    for _ in range(q):
-        c, x = map(int, input().split())
-        if c == 1:
-            bt.insert(x)
-        else:
-            print(bt.high_value(x)-bt.low_value(x))
-
-    
-if __name__ == '__main__':
-    main()
