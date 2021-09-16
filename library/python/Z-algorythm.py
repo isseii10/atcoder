@@ -1,4 +1,4 @@
-#sとs[i:]に共通する接頭辞が
+#sとs[i:]の接頭辞が何文字同じになるか
 def z_algorythm(s):
     n = len(s)
     LCP = [0]*n

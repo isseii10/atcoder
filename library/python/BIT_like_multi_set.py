@@ -2,6 +2,8 @@
 # 要素の削除 O(log n)
 # 要素のk番目を取得 O(log n)
 
+#未完成
+
 class BinaryIndexTree:
     def __init__(self, n) -> None:
         self._n = n
