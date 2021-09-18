@@ -155,3 +155,13 @@ class BalancingTree:
                 re += debug_node(nd.right)
             return re
         return debug_node(self.root)[:-1]
+
+"""
+初期化　bt = BalancingTree(i) 2**iまで挿入できるようになる
+要素xの追加　bt.append(x) O(logn)
+要素xの削除 bt.delete(x) O(logn)
+要素xより小さい最大の値検索 bt.find_l(x) O(logn)
+要素xより大きい最小の値検索 bt.find_r(x) O(logn)
+
+要素の重複は許していない ->重複許すこともできる
+"""
