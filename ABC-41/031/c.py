@@ -10,23 +10,19 @@ MOD = 10**9+7
 
 def main():
     n = int(input())
-    a = list(map(int, input().split()))
-    takahashi_score = 0
-    for i in range(n):
-        for j in range(n):
-            if i == j:continue
-            if i < j and (j-i+1) % 2 == 1:
-                j -= 1
-            elif j < i and (i-j+1) % 2 == 1:
-                j += 1
-            flag = True
-            res = 0
-            for k in range(i, j+1):
-                if flag:
-                    res += a[k]
-                flag ^= True
-            takahashi_score = max(takahashi_score, res)
-    print(takahashi_score)
+    A = list(map(int, input().split()))
+    aoki_score = [[0]*n for _ in range(n)]
+    takahashi_score = [[0]*n for _ in range(n)]
+    for l in range(n):
+        for r in range(n):
+            for flag, i in enumerate(range(l, r+1)):
+                if flag % 2 == 0:
+                    takahashi_score[l][r] += A[i]
+                else:
+                    aoki_score[l][r] += A[i]
+            
+
+
 
 if __name__ == '__main__':
     main()
