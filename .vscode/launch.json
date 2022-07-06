@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "go debug",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${file}",
+            "env": {},
+            "args": []
+        },
+        {
             "name": "(lldb) 起動",
             "type": "cppdbg",
             "request": "launch",

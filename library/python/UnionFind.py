@@ -9,15 +9,15 @@ class UnionFind():
         を返す
         つまりbySize
         """
-        self.parents = [-1] * n
+        self.parent = [-1] * n
 
     def find(self, x):
-        #findが呼ばれた時点で経路圧縮される(根へ繋ぎ換え)
-        if self.parents[x] < 0:
+        if self.parent[x] < 0:
             return x
         else:
-            self.parents[x] = self.find(self.parents[x])
-            return self.parents[x]
+            #ここで再帰的に経路圧縮される(根へ繋ぎ換え)
+            self.parent[x] = self.find(self.parent[x])
+            return self.parent[x]
 
     def union(self, x, y):
         x = self.find(x)
@@ -26,14 +26,14 @@ class UnionFind():
         if x == y:
             return
 
-        if self.parents[x] > self.parents[y]:
+        if self.parent[x] > self.parent[y]:
             x, y = y, x
 
-        self.parents[x] += self.parents[y]
-        self.parents[y] = x
+        self.parent[x] += self.parent[y]
+        self.parent[y] = x
 
     def size(self, x):
-        return -self.parents[self.find(x)]
+        return -self.parent[self.find(x)]
 
     def is_same(self, x, y):
         return self.find(x) == self.find(y)
@@ -43,7 +43,7 @@ class UnionFind():
         return [i for i in range(self.n) if self.find(i) == root]
 
     def roots(self):
-        return [i for i, x in enumerate(self.parents) if x < 0]
+        return [i for i, x in enumerate(self.parent) if x < 0]
 
     def group_count(self):
         return len(self.roots())
