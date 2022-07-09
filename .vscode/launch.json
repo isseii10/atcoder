@@ -11,7 +11,9 @@
             "mode": "auto",
             "program": "${file}",
             "env": {},
-            "args": []
+            "args": [
+                "i",
+            ]
         },
         {
             "name": "(lldb) 起動",
