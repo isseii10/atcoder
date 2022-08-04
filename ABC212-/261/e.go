@@ -13,60 +13,48 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
-}
-
 func main() {
 	defer flush()
-	n := scanInt()
-	pe := make([][]num, n)
-	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
-		}
+	n, c := scanInt2()
+	t, a := scanIntSlice2(n)
+	dp0 := make([][30]int, n+1)
+	dp1 := make([][30]int, n+1)
+	for i:=0;i<30;i++ {
+		dp0[0][i] = 0
+		dp1[0][i] = 1
 	}
-	maxE := make(map[int]int)
+	var op func(int, int) int
 	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
+		for j:=0;j<30;j++ {
+			digitA := a[i] >> j & 1
+			switch t[i] {
+			case 1:
+				op = func(i, j int) int {return i & j} 
+			case 2:
+				op = func(i, j int) int {return i | j}
+			case 3:
+				op = func(i, j int) int {return i ^ j}
 			}
+			dp0[i+1][j] = op(dp0[i][j], digitA) 
+			dp1[i+1][j] = op(dp1[i][j], digitA) 
 		}
 	}
-	countMaxE := make(map[int]int)
+	x := c
 	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
+		x = convertX(x, dp0[i+1], dp1[i+1])
+		out(x)
+	}
+}
+func convertX(x int, dp0, dp1 [30]int) int {
+	res := 0
+	for i:=0;i<30;i++ {
+		if x >> i & 1 == 0 {
+			res += dp0[i] << i
+		} else {
+			res += dp1[i] << i
 		}
 	}
-	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
-			}
-		}
-	}
-	if count != n {ans++}
-	out(ans)
+	return res
 }
 // ==================================================
 // init
@@ -330,6 +318,7 @@ type edge struct {
 }
 type Edges []edge
 type Graph []Edges
+// G := NewGraph(n)  G[a] = append(G[a], edge{to:b, cost:x})
 func newGraph(n int) Graph {
 	return make([]Edges, n)
 }

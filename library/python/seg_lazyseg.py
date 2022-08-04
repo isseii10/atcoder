@@ -275,3 +275,11 @@ class LazySegTree(SegTree):
             if (r & -r) == r:
                 break
         return 0
+    def op(x, y):
+        return x ^ y
+    e = 0
+    def composition(f, g): #fがあと
+        return g ^ f
+    id_ = 0
+    def mapping(f, x):
+        return f ^ x

@@ -13,60 +13,66 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
+type BIT []int
+func NewBIT(n int) BIT {
+	// 1-indexedなのでn+1
+	ret := make(BIT, n+1)
+	for i:=0;i<n+1;i++ {
+		ret[i] = 0
+	}
+	return ret
+}
+func (b *BIT) add(pos, v int) {
+	pos++
+	for pos < len(*b) {
+		(*b)[pos] += v
+		pos += pos & -pos
+	}
+}
+func (b *BIT) get(pos int) int {
+	pos++
+	ret := 0
+	for pos > 0 {
+		ret += (*b)[pos]
+		pos -= pos & -pos
+	}
+	return ret
 }
 
 func main() {
 	defer flush()
 	n := scanInt()
-	pe := make([][]num, n)
-	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
+	C := scanIntSlice(n)
+	X := scanIntSlice(n)
+	collors := make(map[int][]int)
+	for i, c := range C {
+		if _, ok := collors[c]; !ok {
+			collors[c] = make([]int, 0)
+		}
+		collors[c] = append(collors[c], X[i])
+	}
+	bit := NewBIT(n+1)
+	cost := 0
+	for i:=n-1;i>=0;i-- {
+		cost += bit.get(X[i]-1)
+		bit.add(X[i], 1)
+	}
+	// 使い回すためにお掃除
+	for i:=n-1;i>=0;i-- {
+		bit.add(X[i], -1)
+	}
+	for _, xs := range collors {
+		for i := len(xs)-1;i>=0;i-- {
+			cost -= bit.get(xs[i]-1)
+			bit.add(xs[i], 1)
+		}
+		// お掃除
+		for i := len(xs)-1;i>=0;i-- {
+			bit.add(xs[i], -1)
 		}
 	}
-	maxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
-			}
-		}
-	}
-	countMaxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
-		}
-	}
-	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
-			}
-		}
-	}
-	if count != n {ans++}
-	out(ans)
+	out(cost)
+	
 }
 // ==================================================
 // init

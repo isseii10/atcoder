@@ -13,60 +13,38 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
-}
 
 func main() {
 	defer flush()
-	n := scanInt()
-	pe := make([][]num, n)
+	n, k := scanInt2()
+	S := make([][]string, n)
 	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
-		}
-	}
-	maxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
-			}
-		}
-	}
-	countMaxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
-		}
+		S[i] = strings.Split(scanString(), "")
 	}
 	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
+	for i:=0;i<(1<<n);i++ {
+		counter := make(map[string]int, 27)
+		for j:=0;j<n;j++ {
+			if i >> j & 1 == 1 {
+				for _, s := range S[j] {
+					if _, ok := counter[s]; !ok {
+						counter[s] = 0
+					}
+					counter[s]++
+				}
 			}
+			res := 0
+			for _, v := range counter {
+				if v == k {
+					res++
+				}
+			}
+			ans = max(ans, res)
 		}
 	}
-	if count != n {ans++}
 	out(ans)
+
+
 }
 // ==================================================
 // init

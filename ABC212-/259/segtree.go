@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"math"
+	"math/bits"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -13,60 +14,25 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
-}
+
 
 func main() {
 	defer flush()
-	n := scanInt()
-	pe := make([][]num, n)
-	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
+	n, q := scanInt2()
+
+	arr := make([]int, n)
+	for i:=0;i<n;i++ {arr[i] = (1<<31)-1}
+	st := NewSegmentTree(n, op, e)
+	st.initialize(arr)
+	for i:=0;i<q;i++ {
+		t, x, y := scanInt3()
+		switch t {
+		case 0:
+			st.Update(x, y)
+		case 1:
+			out(st.Prod(x, y))
 		}
 	}
-	maxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
-			}
-		}
-	}
-	countMaxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
-		}
-	}
-	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
-			}
-		}
-	}
-	if count != n {ans++}
-	out(ans)
 }
 // ==================================================
 // init
@@ -339,3 +305,73 @@ func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
 func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
 // asc: sort.Sort(graph[i])
 // dec: sort.Sort(sort.Reverce(graph[i]))
+type SegmentTree struct {
+	data []interface{}
+	op func(x, y interface{}) interface{}
+	e interface{}
+	size int
+	height int
+}
+func NewSegmentTree(n int, op func(x, y interface{}) interface{}, e interface{}) SegmentTree {
+	height := bits.Len64(uint64(n-1))
+	size := 1 << height
+	data := make([]interface{}, size*2)
+	for i:=0;i<size*2;i++ {
+		data[i] = e
+	}
+	return SegmentTree{data: data, op: op, e: e, size: size, height: height}
+}
+func (s *SegmentTree) initialize(arr []int) {
+	for i, a := range arr {
+		idx := i + s.size
+		s.data[idx] = a
+	}
+	for i:=s.size-1;i>0;i-- {
+		s.update(i)
+	}
+}
+func (s *SegmentTree) update(i int) {
+	s.data[i] = s.op(s.data[i<<1].(int), s.data[i<<1 | 1])
+}
+func(s *SegmentTree) Update(pos, x int) {
+	pos += s.size
+	s.data[pos] = x
+	for i:=1;i<=s.height;i++ {
+		s.update(pos >> i)
+	}
+}
+func (s *SegmentTree) Get(pos int) interface{} {
+	return s.data[pos+s.size]
+}
+func (s *SegmentTree) Prod(l, r int) interface{} {
+	// op(data[l], data[l+1], ..., data[r-1])を返す
+	if l == r {
+		return s.Get(l)
+	}
+	left := s.e
+	right := s.e
+	l += s.size
+	r += s.size
+
+	for l < r {
+		if l & 1 == 1 {
+			left = s.op(left, s.data[l])
+			l += 1
+		}
+		if r & 1 == 1 {
+			r -= 1
+			right = s.op(s.data[r], right)
+		}
+		l >>= 1
+		r >>= 1
+	}
+	return s.op(left, right)
+}
+func (s *SegmentTree) allProd() interface{} {
+	return s.data[1]
+}
+
+const e = 1 << 31 -1
+func op(x, y interface{}) interface{} {
+	return min(x.(int), y.(int))
+}

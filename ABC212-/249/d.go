@@ -13,61 +13,52 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
-}
 
 func main() {
 	defer flush()
 	n := scanInt()
-	pe := make([][]num, n)
-	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
+	A := scanIntSlice(n)
+	counter := make(map[int]int)
+	for _, a := range A {
+		if _, ok := counter[a]; !ok {
+			counter[a] = 0
 		}
-	}
-	maxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
-			}
-		}
-	}
-	countMaxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
-		}
+		counter[a]++
 	}
 	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
+	for _, a := range A {
+		ds := divisor(a)
+		for _, d := range ds {
+			d1 := d[0]
+			d2 := d[1]
+			if d1 > d2 {
+				d1, d2 = d2, d1
+			}
+			if _, ok := counter[d1];!ok {
+				continue
+			}
+			if _, ok := counter[d2];!ok {
+				continue
+			}
+			if d1 != d2 {
+				ans += counter[d1] * counter[d2] * 2
+			} else {
+				ans += counter[d1] * counter[d2]
 			}
 		}
 	}
-	if count != n {ans++}
 	out(ans)
 }
+
+type pair [2]int
+func divisor(n int) []pair {
+	ret := make([]pair, 0)
+	for i:=1;i*i<=n;i++ {
+		if n%i == 0 {ret = append(ret, pair{i, n/i})}
+	}
+	return ret
+}
+
 // ==================================================
 // init
 // ==================================================

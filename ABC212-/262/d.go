@@ -13,61 +13,48 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
-}
-
 func main() {
 	defer flush()
 	n := scanInt()
-	pe := make([][]num, n)
-	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
-		}
-	}
-	maxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
-			}
-		}
-	}
-	countMaxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
-		}
-	}
+	var A []int
+	A = scanIntSlice(n)
 	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
-			}
+	for i := 1; i <= n; i++ {
+		ans = (ans + solve(&A, n, i)) % mod
+		if ans < 0 {
+			ans += mod
 		}
 	}
-	if count != n {ans++}
 	out(ans)
 }
+func solve(A *[]int, n, num int) int {
+	// num個選ぶとき
+	dp := make([][][]int, n+1)
+	for i := 0; i <= n; i++ {
+		dp[i] = make([][]int, num+10)
+		for j := 0; j < num+10; j++ {
+			dp[i][j] = make([]int, num)
+			for k := 0; k < num; k++ {
+				dp[i][j][k] = 0
+			}
+		}
+	}
+	dp[0][0][0] = 1
+	for i := 0; i < n; i++ {
+		ai := ((*A)[i] + num) % num
+		for j := 0; j <= num; j++ {
+			for k := 0; k < num; k++ {
+				// 選ばない
+				dp[i+1][j][k] += dp[i][j][k]
+				//選ぶ
+				kk := (k + ai + num) % num
+				dp[i+1][j+1][kk] = (dp[i+1][j+1][kk] + dp[i][j][k] + mod) % mod
+			}
+		}
+	}
+	return dp[n][num][0]
+}
+
 // ==================================================
 // init
 // ==================================================
@@ -75,7 +62,7 @@ func main() {
 const inf = math.MaxInt64
 const mod1000000007 = 1000000007
 const mod998244353 = 998244353
-const mod = mod1000000007
+const mod = mod998244353
 
 func init() {
 	sc.Buffer([]byte{}, math.MaxInt64)
@@ -207,7 +194,6 @@ func flush() {
 	}
 }
 
-
 func atoi(s string) int {
 	i, e := strconv.Atoi(s)
 	if e != nil {
@@ -254,7 +240,6 @@ func max(arr ...int) int {
 	return res
 }
 
-
 func abs(a int) int {
 	if a > 0 {
 		return a
@@ -275,9 +260,9 @@ func gcd(a, b int) int {
 type IntMinHeap []int
 
 //heapインターフェースの実装 heap化はheap.Init(hq)
-func (h IntMinHeap) Len() int {return len(h)}
-func (h IntMinHeap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
-func (h IntMinHeap) Less(i, j int) bool {return h[i] < h[j]}
+func (h IntMinHeap) Len() int           { return len(h) }
+func (h IntMinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h IntMinHeap) Less(i, j int) bool { return h[i] < h[j] }
 
 func (h *IntMinHeap) Push(e interface{}) {
 	*h = append(*h, e.(int))
@@ -289,10 +274,12 @@ func (h *IntMinHeap) Pop() interface{} {
 	*h = old[:n-1]
 	return x
 }
+
 // =====================================================================================
 // stack and queue
 // =====================================================================================
 type Stack []int
+
 func (s *Stack) Push(v int) {
 	*s = append(*s, v)
 }
@@ -306,8 +293,10 @@ func (s *Stack) Pop() int {
 func (s *Stack) IsEmpty() bool {
 	return len(*s) == 0
 }
+
 // queue
 type Queue []int
+
 func (q *Queue) Push(v int) {
 	*q = append(*q, v)
 }
@@ -318,24 +307,27 @@ func (q *Queue) Pop() int {
 	return x
 }
 func (q *Queue) IsEmpty() bool {
-	return len(*q) == 0 
+	return len(*q) == 0
 }
 
 // =====================================================================================
 // Graph
 // =====================================================================================
 type edge struct {
-	to int
+	to   int
 	cost int
 }
 type Edges []edge
 type Graph []Edges
+
 func newGraph(n int) Graph {
 	return make([]Edges, n)
 }
+
 // Edgesのcostでのsortを可能にするためのsort.interfaceを実装
-func (e Edges) Len() int {return len(e)}
-func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
-func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
+func (e Edges) Len() int           { return len(e) }
+func (e Edges) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
+func (e Edges) Less(i, j int) bool { return e[i].cost < e[j].cost }
+
 // asc: sort.Sort(graph[i])
 // dec: sort.Sort(sort.Reverce(graph[i]))

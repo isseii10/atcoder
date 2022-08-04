@@ -13,60 +13,97 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-type num struct {
-	p int
-	e int
+type Poteto struct {
+	num int
+	to int
 }
 
 func main() {
 	defer flush()
-	n := scanInt()
-	pe := make([][]num, n)
+	n, q, x := scanInt3()
+	W := scanIntSlice(n)
+	s := make([]int, n+1)
+	s[0] = 0
 	for i:=0;i<n;i++ {
-		m := scanInt()
-		pe[i] = make([]num, m)
-		for j:=0;j<m;j++ {
-			p, e := scanInt2()
-			pe[i][j] = num{p:p, e:e}
+		s[i+1] = s[i] + W[i]
+	}
+	loop := 0
+	if x > s[n] {
+		loop = x / s[n]
+		x -= s[n]*loop // ここでx=0になる時がある
+	}
+	W2 := make([]int, 2*n)
+	for i := 0; i<2*n; i++ {
+		idx := i % n
+		if idx < 0 {
+			idx += n
+		}
+		W2[i] = W[idx]
+	}
+	s2 := make([]int, 2*n+1)
+	s2[0] = 0
+	for i := 0; i<2*n;i++ {
+		s2[i+1] = s2[i] + W2[i]
+	}
+	nums := make([]Poteto, n) // nums[i]はi番目のポテトから箱に入れ,入るポテトの数と次の始まりのidx
+	for i:=0;i<n;i++ {
+		nums[i] = bisectLeft(n, i, x, s2)
+		nums[i].num += loop*n
+	}
+	reached := make([]bool, n)
+	for i:=0;i<n;i++ {reached[i]=false}
+	road := make([]int, 0, n)
+	now := 0
+	road = append(road, now)
+	reached[now] = true
+	for !reached[nums[now].to] {
+		next := nums[now].to
+		road = append(road, next)
+		reached[next] = true
+		now = next
+	}
+	cycleEnd := now
+	cycleStart := nums[now].to
+	cycle := make([]int, 0) // ループが始まってからの道のり
+	cycle = append(cycle, cycleStart)
+	now = cycleStart
+	for {
+		next := nums[now].to
+		cycle = append(cycle, next)
+		if next == cycleEnd {
+			break
+		}
+		now = next
+	}
+	for i:=0;i<q;i++ {
+		k := scanInt()
+		k--
+		roadLen := len(road)
+		if k >= roadLen {
+			k -= roadLen
+			cycleLen := len(cycle)
+			cycleIdx := (k % cycleLen + cycleLen) % cycleLen
+			out(nums[cycle[cycleIdx]].num) 
+		} else {
+			out(nums[road[k]].num)	
 		}
 	}
-	maxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p := num.p
-			e := num.e
-			if _, ok := maxE[p];!ok {
-				maxE[p] = e
-			} else {
-				maxE[p] = max(maxE[p], e)
-			}
+}
+
+func bisectLeft(n, startIdx, x int, s []int) Poteto {
+	ok := startIdx-1 
+	ng := len(s)
+	bias := s[startIdx]
+	for ng - ok > 1 {
+		mid := (ok+ng)/2
+		if s[mid] - bias < x {
+			ok = mid
+		} else {
+			ng = mid
 		}
 	}
-	countMaxE := make(map[int]int)
-	for i:=0;i<n;i++ {
-		for _, num := range pe[i] {
-			p, e := num.p, num.e
-			if maxE[p] == e {
-				if _, ok := countMaxE[p]; !ok {
-					countMaxE[p] = 0
-				}
-				countMaxE[p]++
-			}
-		}
-	}
-	ans := 0
-	count := 0 //単独マックスの個数
-	for i:=0;i<n;i++ {
-		for _, numI := range pe[i] {
-			p, e := numI.p, numI.e
-			if maxE[p] == e && countMaxE[p] == 1 {
-				ans++;count++
-				break
-			}
-		}
-	}
-	if count != n {ans++}
-	out(ans)
+	to := (ng % n + n) % n
+	return Poteto{num:ng-startIdx, to:to}
 }
 // ==================================================
 // init

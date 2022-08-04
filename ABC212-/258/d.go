@@ -19,7 +19,22 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	
+	n, x := scanInt2()
+	a, b := scanIntSlice2(n)
+	ans := inf
+	minB := inf
+	time := 0
+	for i:=0;i<n;i++ {
+		time += a[i] + b[i]
+		clearCount := i+1
+		if clearCount >= x {
+			break
+		}
+		minB = min(minB, b[i])
+		ans = min(ans, (x - clearCount)*minB + time)
+	}
+	out(ans)
+
 }
 
 // ==================================================
