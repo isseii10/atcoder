@@ -14,33 +14,94 @@ var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
 
+type UnionFind struct {
+	n    int
+	root []int
+}
+
+func NewUnionFind(n int) UnionFind {
+	root := make([]int, n)
+	for i := 0; i < n; i++ {
+		root[i] = -1
+	}
+	uf := UnionFind{n: n, root: root}
+	return uf
+}
+func (u *UnionFind) Find(x int) int {
+	if u.root[x] < 0 {
+		return x
+	}
+	u.root[x] = u.Find(u.root[x])
+	return u.root[x]
+}
+func (u *UnionFind) Union(x, y int) {
+	x = u.Find(x)
+	y = u.Find(y)
+	if x == y {
+		return
+	}
+	if -u.root[x] < -u.root[y] {
+		x, y = y, x
+	} // xの方がサイズ大きいように
+	u.root[x] += u.root[y]
+	u.root[y] = x
+}
+func (u *UnionFind) IsSame(x, y int) bool {
+	return u.Find(x) == u.Find(y)
+}
+func (u *UnionFind) Size(x int) int {
+	return -u.root[u.Find(x)]
+}
+
 func main() {
 	defer flush()
-	n, m, k := scanInt3()
-	dp := make([][]int, n+1) // dp[i][j] := i番目までで、玉がj個入っている時の場合の数
-	for i:=0;i<=n;i++ {
-		dp[i] = make([]int, k+1)
-		for j:=0;j<k+1;j++ {
-			dp[i][j] = 0
-		}
-	}
-	dp[0][0] = 1
+	n := scanInt()
+	blackMap := make(map[[2]int]bool)
+	idxMap := make(map[[2]int]int)
+	X := make([]int, n)
+	Y := make([]int, n)
 	for i:=0;i<n;i++ {
-		for j:=0;j<k+1;j++ {
-			for num := 1;num <= m;num++ {
-				if j + num <= k {
-					dp[i+1][j+num] = (dp[i+1][j+num] + dp[i][j] + mod) % mod
-				}
-			}
-		}
+		x, y := scanInt2()
+		X[i] = x
+		Y[i] = y
+		blackMap[[2]int{x, y}] = true
+		idxMap[[2]int{x, y}] = i
 	}
-	ans := 0
-	for i:=n;i<=k;i++ {
-		ans = (ans + dp[n][i] + mod) % mod
+	next := [6][2]int{
+		[2]int{-1, -1},
+		[2]int{-1, 0},
+		[2]int{0, -1},
+		[2]int{0, 1},
+		[2]int{1, 0},
+		[2]int{1, 1},
+	}
+	ans := n
+	used := make([]bool, n)
+	var dfs func(x, y int) int
+	dfs = func(x, y int) int {
+		if _, ok := blackMap[[2]int{x, y}]; !ok {
+			return 0
+		}
+		idx := idxMap[[2]int{x, y}]
+		if used[idx] {
+			return 0
+		}
+		used[idx] = true
+		ret := 1
+		for i := range next {
+			dx := next[i][0]
+			dy := next[i][1]
+			ret += dfs(x+dx, y+dy)
+		}
+		return ret
+	}
+	for i:=0;i<n;i++ {
+		if used[i] {
+			continue
+		}
+		ans -= dfs(X[i], Y[i])-1
 	}
 	out(ans)
-	
-	
 }
 // ==================================================
 // init
@@ -49,7 +110,7 @@ func main() {
 const inf = math.MaxInt64
 const mod1000000007 = 1000000007
 const mod998244353 = 998244353
-const mod = mod998244353
+const mod = mod1000000007
 
 func init() {
 	sc.Buffer([]byte{}, math.MaxInt64)
@@ -246,17 +307,23 @@ func gcd(a, b int) int {
 // =====================================================================================
 // heap
 // =====================================================================================
-type IntMinHeap []int
+type Heap []int
+func NewHeap() *Heap {
+	return &Heap{}
+}
+func (h Heap) IsEmpty() bool {
+	return len(h) == 0
+}
 
 //heapインターフェースの実装 heap化はheap.Init(hq)
-func (h IntMinHeap) Len() int {return len(h)}
-func (h IntMinHeap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
-func (h IntMinHeap) Less(i, j int) bool {return h[i] < h[j]}
+func (h Heap) Len() int {return len(h)}
+func (h Heap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
+func (h Heap) Less(i, j int) bool {return h[i] < h[j]}
 
-func (h *IntMinHeap) Push(e interface{}) {
+func (h *Heap) Push(e interface{}) {
 	*h = append(*h, e.(int))
 }
-func (h *IntMinHeap) Pop() interface{} {
+func (h *Heap) Pop() interface{} {
 	old := *h
 	n := len(old)
 	x := old[n-1]
@@ -312,107 +379,4 @@ func (e Edges) Len() int {return len(e)}
 func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
 func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
 // asc: sort.Sort(graph[i])
-// dec: sort.Sort(sort.Reverce(graph[i])
-
-
-type combFactorial struct {
-	fac    []int
-	facinv []int
-}
-
-// 1 <= n <= 10 ** 7
-func newCombFactorial(n int) *combFactorial {
-
-	fac := make([]int, n)
-	facinv := make([]int, n)
-	fac[0] = 1
-	facinv[0] = minvfermat(1, mod)
-
-	for i := 1; i < n; i++ {
-		fac[i] = mmul(i, fac[i-1])
-		facinv[i] = minvfermat(fac[i], mod)
-	}
-
-	return &combFactorial{
-		fac:    fac,
-		facinv: facinv,
-	}
-}
-
-func (c *combFactorial) Factorial(n int) int {
-	return c.fac[n]
-}
-
-func (c *combFactorial) Combination(n, r int) int {
-	if r > n {
-		return 0
-	}
-	return mmul(mmul(c.fac[n], c.facinv[r]), c.facinv[n-r])
-}
-
-func (c *combFactorial) Permutation(n, r int) int {
-	if r > n {
-		return 0
-	}
-	return mmul(c.fac[n], c.facinv[n-r])
-}
-
-func (c *combFactorial) HomogeousProduct(n, r int) int {
-	return c.Combination(n-1+r, r)
-}
-
-// ==================================================
-// mod
-// ==================================================
-
-func madd(a, b int) int {
-	a += b
-	if a < 0 {
-		a += mod
-	} else if a >= mod {
-		a -= mod
-	}
-	return a
-}
-
-func mmul(a, b int) int {
-	return a * b % mod
-}
-
-func mdiv(a, b int) int {
-	a %= mod
-	return a * minvfermat(b, mod) % mod
-}
-
-func mpow(a, n, m int) int {
-	if m == 1 {
-		return 0
-	}
-	r := 1
-	for n > 0 {
-		if n&1 == 1 {
-			r = r * a % m
-		}
-		a, n = a*a%m, n>>1
-	}
-	return r
-}
-
-func minv(a, m int) int {
-	p, x, u := m, 1, 0
-	for p != 0 {
-		t := a / p
-		a, p = p, a-t*p
-		x, u = u, x-t*u
-	}
-	x %= m
-	if x < 0 {
-		x += m
-	}
-	return x
-}
-
-// m only allow prime number
-func minvfermat(a, m int) int {
-	return mpow(a, m-2, mod)
-}
+// dec: sort.Sort(sort.Reverce(graph[i]))
