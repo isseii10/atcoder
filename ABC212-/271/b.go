@@ -16,7 +16,19 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	
+	n, q := scanInt2()
+	A := make([][]int, n)
+	L := make([]int, n)
+	for i := range A {
+		L[i] = scanInt()
+		A[i] = scanIntSlice(L[i])
+	}
+	for i:=0;i<q;i++ {
+		s, t := scanInt2()
+		s--
+		t--
+		out(A[s][t])
+	}
 }
 // ==================================================
 // init

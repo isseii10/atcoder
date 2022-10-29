@@ -16,7 +16,43 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	
+	n := scanInt()
+	hex := make(map[int]string)
+	for i := 0; i < 16; i++ {
+		if i < 10 {
+			hex[i] = itoa(i)
+		} else {
+			if i == 10 {
+				hex[i] = "A"
+			}
+			if i == 11 {
+				hex[i] = "B"
+			}
+			if i == 12 {
+				hex[i] = "C"
+			}
+			if i == 13 {
+				hex[i] = "D"
+			}
+			if i == 14 {
+				hex[i] = "E"
+			}
+			if i == 15 {
+				hex[i] = "F"
+			}
+		}
+	}
+	ans := make([]string, 0)
+	for n != 0 {
+		x := n % 16
+		ans = append(ans, hex[x])
+		n /= 16
+	}
+	if len(ans) == 1 {
+		ans = append([]string{"0"}, ans[0])
+	}
+	out(strings.Join(ans, ""))
+
 }
 // ==================================================
 // init

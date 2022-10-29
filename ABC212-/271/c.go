@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -16,7 +17,43 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	
+	n := scanInt()
+	A := scanIntSlice(n)
+	sort.Ints(A)
+	have := make(map[int]int)
+	maxHeap := NewHeap()
+	for _, a := range A {
+		if _, ok := have[a]; !ok {
+			have[a] = 0
+		}
+		have[a]++
+		maxHeap.Push(-a)
+	}
+	now := 0
+	L:
+		for {
+			nxt := now + 1
+			if have[nxt] > 0 {
+				have[nxt]--
+				now = nxt
+				continue
+			}
+			// 持ってない
+			for i:=0;i<2;i++ {
+				if maxHeap.IsEmpty() {
+					break L
+				}
+				m := maxHeap.Pop()
+				maxA := -m.(int)
+				if have[maxA] > 0 {
+					have[maxA]--
+				} else {
+					break L
+				}
+			}
+			now = nxt
+		}
+	out(now)
 }
 // ==================================================
 // init

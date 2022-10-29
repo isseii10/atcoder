@@ -13,11 +13,75 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-
 func main() {
 	defer flush()
-	
+	n, s := scanInt2()
+	A, B := scanIntSlice2(n)
+
+	sna := make([]string, 0)
+	var dfs func(i int, b bool) int
+	now := 0
+	dfs = func(i int, b bool) int {
+		if i == n-1 {
+			if b {
+				if s == now+A[i] {
+					sna = append(sna, "H")
+					return 1
+				}
+			} else {
+				if s == now+B[i] {
+					sna = append(sna, "T")
+					return 1
+				}
+			}
+			return -1
+		}
+		if b {
+			now += A[i]
+		} else {
+			now += B[i]
+		}
+		for _, nb := range [2]bool{true, false} {
+			ret := dfs(i+1, nb)
+			if ret == 1 {
+				if b {
+					sna = append(sna, "H")
+				} else {
+					sna = append(sna, "T")
+				}
+				return 1
+			}
+		}
+		if b {
+			now -= A[i]
+		} else {
+			now -= B[i]
+		}
+		return -1
+	}
+	ok1 := dfs(0, true)
+	if ok1 == 1 {
+		out("Yes")
+		ans := make([]string, 0)
+		for i:=len(sna)-1;i>=0;i-- {
+			ans = append(ans, sna[i])
+		}
+		out(strings.Join(ans, ""))
+		return
+	}
+	ok2 := dfs(0, false)
+	if ok2 == 1 {
+		out("Yes")
+		ans := make([]string, 0)
+		for i:=len(sna)-1;i>=0;i-- {
+			ans = append(ans, sna[i])
+		}
+		out(strings.Join(ans, ""))
+		return
+	}
+	out("No")
 }
+
 // ==================================================
 // init
 // ==================================================
@@ -157,7 +221,6 @@ func flush() {
 	}
 }
 
-
 func atoi(s string) int {
 	i, e := strconv.Atoi(s)
 	if e != nil {
@@ -204,7 +267,6 @@ func max(arr ...int) int {
 	return res
 }
 
-
 func abs(a int) int {
 	if a > 0 {
 		return a
@@ -223,6 +285,7 @@ func gcd(a, b int) int {
 // heap
 // =====================================================================================
 type Heap []int
+
 func NewHeap() *Heap {
 	return &Heap{}
 }
@@ -231,9 +294,9 @@ func (h Heap) IsEmpty() bool {
 }
 
 //heapインターフェースの実装 heap化はheap.Init(hq)
-func (h Heap) Len() int {return len(h)}
-func (h Heap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
-func (h Heap) Less(i, j int) bool {return h[i] < h[j]}
+func (h Heap) Len() int           { return len(h) }
+func (h Heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h Heap) Less(i, j int) bool { return h[i] < h[j] }
 
 func (h *Heap) Push(e interface{}) {
 	*h = append(*h, e.(int))
@@ -245,10 +308,12 @@ func (h *Heap) Pop() interface{} {
 	*h = old[:n-1]
 	return x
 }
+
 // =====================================================================================
 // stack and queue
 // =====================================================================================
 type Stack []int
+
 func (s *Stack) Push(v int) {
 	*s = append(*s, v)
 }
@@ -262,8 +327,10 @@ func (s *Stack) Pop() int {
 func (s *Stack) IsEmpty() bool {
 	return len(*s) == 0
 }
+
 // queue
 type Queue []int
+
 func (q *Queue) Push(v int) {
 	*q = append(*q, v)
 }
@@ -274,24 +341,27 @@ func (q *Queue) Pop() int {
 	return x
 }
 func (q *Queue) IsEmpty() bool {
-	return len(*q) == 0 
+	return len(*q) == 0
 }
 
 // =====================================================================================
 // Graph
 // =====================================================================================
 type edge struct {
-	to int
+	to   int
 	cost int
 }
 type Edges []edge
 type Graph []Edges
+
 func newGraph(n int) Graph {
 	return make([]Edges, n)
 }
+
 // Edgesのcostでのsortを可能にするためのsort.interfaceを実装
-func (e Edges) Len() int {return len(e)}
-func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
-func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
+func (e Edges) Len() int           { return len(e) }
+func (e Edges) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
+func (e Edges) Less(i, j int) bool { return e[i].cost < e[j].cost }
+
 // asc: sort.Sort(graph[i])
 // dec: sort.Sort(sort.Reverce(graph[i]))
