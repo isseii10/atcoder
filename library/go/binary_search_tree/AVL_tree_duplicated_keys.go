@@ -128,16 +128,12 @@ func (a *AVLTree) Insert(key Key, value Value) {
 	v := a.root
 	history := make(nodeStack, 0)
 	for v != nil {
-		if key < v.key {
+		if key <= v.key {
 			history.Push(nodeDir{v, 1})
 			v = v.leftChild
 		} else if v.key < key {
 			history.Push(nodeDir{v, -1})
 			v = v.rightChild
-		} else {
-			// 同じkeyのとき上書きされる
-			v.value = value
-			return
 		}
 	}
 	p, pdir := history.Top().node, history.Top().dir
