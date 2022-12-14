@@ -23,51 +23,51 @@ func main() {
 	for i := range X {
 		X[i]--
 	}
-	visited := make([]bool, n)
-	IsCycle := make([]bool, n)
-	cycle := make([]int, 0, n)
+	state := make([]int, n)
+	// 0: 未探索
+	// 1: 処理中
+	// 2: 処理完了
+	var cycle []int
 
-	var dfs func(now int) int // 返り値はcycleに突入したときのノード
+	var dfs func(now int) int
 	dfs = func(now int) int {
 		// 終了条件
-		if visited[now] {
-			return now // nowが訪問ずみの場合、nowからcycleが始まっている
+		if state[now] == 1 {
+			return now // cycleの開始地点
 		}
-		visited[now] = true
+		if state[now] == 2 {
+			// 処理完了ノードにやってきたら探索やめる
+			return -1
+		}
+
+		state[now] = 1
+
 		nxt := X[now]
-		cycleStart := dfs(nxt)
-		if cycleStart != -1 {
-			if IsCycle[cycleStart] {
+		ret := dfs(nxt)
+
+		state[now] = 2
+		if ret != -1 {
+			cycle = append(cycle, now)
+			if ret == now {
 				return -1
 			}
-			cycle = append(cycle, now)
 		}
-		if cycleStart == now {
-			return -1
-		} else {
-			return cycleStart
-		}
+		return ret
 	}
-
+	ans := 0
 	for i:=0;i<n;i++ {
-		cycle = make([]int, 0, n)
-		dfs(i) // どのノードからもdfsをする
-		seenCycle := false
-		for _, v := range cycle {
-			if IsCycle[v] {
-				seenCycle = true
-				break
-			}
-			IsCycle[v] = true
+		cycle = make([]int, 0)
+		dfs(i)
+		tmp := inf
+		if len(cycle) == 0 {
+			tmp = 0
 		}
-		if !seenCycle {
-			out("cycle...")
-			for _, v := range cycle {
-				out(v+1)
-			}
-			// do samething
+		for _, c := range cycle {
+			tmp = min(tmp, C[c])
 		}
+		ans += tmp
 	}
+	out(ans)
 }
 // ==================================================
 // init
