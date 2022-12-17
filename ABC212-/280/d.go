@@ -357,4 +357,4 @@ func (e Edges) Len() int {return len(e)}
 func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
 func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
 // asc: sort.Sort(graph[i])
-// dec: sort.Sort(sort.Reverce(graph[i]))
+// desc: sort.Sort(sort.Reverse(graph[i]))
