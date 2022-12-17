@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -18,15 +17,36 @@ var wtr = bufio.NewWriter(os.Stdout)
 func main() {
 	defer flush()
 	k := scanInt()
-	primes := primeFactor(k)
-	sort.Ints(primes)
-	maxPrime := primes[len(primes)-1]
-	out(maxPrime)
+	primeMap := primeFactor2(k)
 	
-	
-	
-
+	ok := k
+	ng := 0
+	for ok-ng > 1 {
+		mid := (ok+ng)/2
+		okFlag := true
+		for p, num := range primeMap {
+			if check(mid, p) < num	{
+				okFlag = false
+				break
+			}
+		}
+		if okFlag {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+	out(ok)
 }
+// xの階乗が素数pで何回割れるか
+func check(x , p int) int {
+	if x < p {
+		return 0 
+	}	
+	y := x / p
+	return y + check(y, p)
+}
+
 // ==================================================
 // init
 // ==================================================
@@ -52,6 +72,7 @@ func primeFactor2(n int) map[int]int {
 				ret[i] = 0
 			}
 			ret[i]++
+			n /= i
 		}
 	}
 	if n != 1 {

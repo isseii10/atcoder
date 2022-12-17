@@ -37,6 +37,7 @@ func primeFactor2(n int) map[int]int {
 				ret[i] = 0
 			}
 			ret[i]++
+			n /= i
 		}
 	}
 	if n != 1 {
