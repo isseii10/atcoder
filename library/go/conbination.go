@@ -4,24 +4,24 @@ const mod = 100000007
 
 type combFactorial struct {
 	fac    []int
-	facinv []int
+	facInv []int
 }
 
 func newCombFactorial(n int) *combFactorial {
 
 	fac := make([]int, n)
-	facinv := make([]int, n)
+	facInv := make([]int, n)
 	fac[0] = 1
-	facinv[0] = minvfermat(1, mod)
+	facInv[0] = modInvFermat(1, mod)
 
 	for i := 1; i < n; i++ {
-		fac[i] = mmul(i, fac[i-1])
-		facinv[i] = minvfermat(fac[i], mod)
+		fac[i] = modMulti(i, fac[i-1])
+		facInv[i] = modInvFermat(fac[i], mod)
 	}
 
 	return &combFactorial{
 		fac:    fac,
-		facinv: facinv,
+		facInv: facInv,
 	}
 }
 
@@ -33,14 +33,14 @@ func (c *combFactorial) Combination(n, r int) int {
 	if r > n {
 		return 0
 	}
-	return mmul(mmul(c.fac[n], c.facinv[r]), c.facinv[n-r])
+	return modMulti(modMulti(c.fac[n], c.facInv[r]), c.facInv[n-r])
 }
 
 func (c *combFactorial) Permutation(n, r int) int {
 	if r > n {
 		return 0
 	}
-	return mmul(c.fac[n], c.facinv[n-r])
+	return modMulti(c.fac[n], c.facInv[n-r])
 }
 
 func (c *combFactorial) HomogeousProduct(n, r int) int {
@@ -51,26 +51,28 @@ func (c *combFactorial) HomogeousProduct(n, r int) int {
 // mod
 // ==================================================
 
-func madd(a, b int) int {
-	a += b
-	if a < 0 {
-		a += mod
-	} else if a >= mod {
-		a -= mod
+// modを法としてa+b
+func modAdd(a, b int) int {
+	ret := a + b
+	if ret < 0 {
+		ret += mod
 	}
-	return a
+	return ret % mod
 }
 
-func mmul(a, b int) int {
+// modを法としてa*b
+func modMulti(a, b int) int {
 	return a * b % mod
 }
 
-func mdiv(a, b int) int {
+// modを法としてa/b
+func modDiv(a, b int) int {
 	a %= mod
-	return a * minvfermat(b, mod) % mod
+	return a * modInvFermat(b, mod) % mod
 }
 
-func mpow(a, n, m int) int {
+// mを法としてa^nを求める
+func modPow(a, n, m int) int {
 	if m == 1 {
 		return 0
 	}
@@ -84,7 +86,8 @@ func mpow(a, n, m int) int {
 	return r
 }
 
-func minv(a, m int) int {
+// mを法としてaの逆元を求める
+func modInv(a, m int) int {
 	p, x, u := m, 1, 0
 	for p != 0 {
 		t := a / p
@@ -98,7 +101,8 @@ func minv(a, m int) int {
 	return x
 }
 
-// m only allow prime number
-func minvfermat(a, m int) int {
-	return mpow(a, m-2, mod)
+// フェルマーの小定理を用いてaの逆元を求める
+// mは素数
+func modInvFermat(a, m int) int {
+	return modPow(a, m-2, mod)
 }
