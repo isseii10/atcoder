@@ -13,53 +13,42 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-// https://atcoder.jp/contests/joi2007ho/tasks/joi2007ho_c
+
 func main() {
 	defer flush()
-	N := scanInt()
-	xy := make([][2]int, N)
-	for i:=0;i<N;i++ {
-		x, y := scanInt2()
-		xy[i] = [2]int{x, y}
-	}
-	out(solve(N, xy))
-}
-
-func solve(n int, xy [][2]int) int {
-	exists := make(map[[2]int]bool)
-	for _, v := range xy {
-		exists[v] = true
-	}
-	ans := 0
-	for i:=0;i<n;i++ {
-		for j:=0;j<n;j++ {
-			if i == j {
-				continue
-			}
-			xy1 := xy[i]
-			xy2 := xy[j]
-			x1 := xy1[0]
-			y1 := xy1[1]
-			x2 := xy2[0]
-			y2 := xy2[1]
-			// 隣合うとき
-			xy3 := [2]int{y2-y1+x1, x1-x2+y1}
-			xy4 := [2]int{y2-y1+x2, x1-x2+y2}
-			_, ok := exists[xy3]
-			_, ok2 := exists[xy4]
-			if ok && ok2 {
-				ans = max(ans, calc(xy1, xy2))
-			}
-			// 対角のときは求めなくても、隣あう時で引っかかる
+	n, m := scanInt2()
+	S := make([][]int, m)
+	for i := range S {
+		k := scanInt()
+		S[i] = scanIntSlice(k)
+		for j := range S[i]{
+			S[i][j]--
 		}
 	}
-	return ans
-}
-// 隣あう二点
-func calc(xy1, xy2 [2]int) int {
-	len1 := (xy2[0] - xy1[0])*(xy2[0] - xy1[0]) + (xy2[1]-xy1[1])*(xy2[1]-xy1[1])
-	return len1
+	P := scanIntSlice(m)
 
+	ans := 0
+	for i:=0; i< 1<<n; i++ {
+		ok := true
+		for j := 0; j<m; j++ {
+			switches := S[j]
+			count := 0
+			for _, s := range switches {
+				if i >> s & 1 == 1{
+					count++
+				}
+			}
+			if count % 2 != P[j] {
+				ok  = false
+				break
+			}
+		}
+		if ok {
+			ans++
+		}
+
+	}
+	out(ans)
 }
 // ==================================================
 // init

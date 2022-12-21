@@ -13,53 +13,35 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-// https://atcoder.jp/contests/joi2007ho/tasks/joi2007ho_c
+// https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_A&lang=ja
 func main() {
 	defer flush()
-	N := scanInt()
-	xy := make([][2]int, N)
-	for i:=0;i<N;i++ {
-		x, y := scanInt2()
-		xy[i] = [2]int{x, y}
-	}
-	out(solve(N, xy))
-}
-
-func solve(n int, xy [][2]int) int {
-	exists := make(map[[2]int]bool)
-	for _, v := range xy {
-		exists[v] = true
-	}
-	ans := 0
-	for i:=0;i<n;i++ {
-		for j:=0;j<n;j++ {
-			if i == j {
-				continue
+	n := scanInt()
+	A := scanIntSlice(n)
+	q := scanInt()
+	M := scanIntSlice(q)
+	ans := make([]bool, q)
+	for i:=0;i < 1<<uint(n); i++ {
+		sum := 0
+		for j := 0; j<n; j++ {
+			if i >> uint(j) & 1 == 1 {
+				sum += A[j]
 			}
-			xy1 := xy[i]
-			xy2 := xy[j]
-			x1 := xy1[0]
-			y1 := xy1[1]
-			x2 := xy2[0]
-			y2 := xy2[1]
-			// 隣合うとき
-			xy3 := [2]int{y2-y1+x1, x1-x2+y1}
-			xy4 := [2]int{y2-y1+x2, x1-x2+y2}
-			_, ok := exists[xy3]
-			_, ok2 := exists[xy4]
-			if ok && ok2 {
-				ans = max(ans, calc(xy1, xy2))
+		}
+		for k:=0;k<q;k++ {
+			if sum == M[k] {
+				ans[k] = true
 			}
-			// 対角のときは求めなくても、隣あう時で引っかかる
 		}
 	}
-	return ans
-}
-// 隣あう二点
-func calc(xy1, xy2 [2]int) int {
-	len1 := (xy2[0] - xy1[0])*(xy2[0] - xy1[0]) + (xy2[1]-xy1[1])*(xy2[1]-xy1[1])
-	return len1
-
+	for _, a := range ans {
+		if a {
+			out("yes")
+		} else {
+			out("no")
+		}
+		
+	}
 }
 // ==================================================
 // init
