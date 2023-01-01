@@ -8,75 +8,76 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sort"
 )
 
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
-// https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_13_A&lang=j
+
 func main() {
 	defer flush()
-	k := scanInt()
-	field := [8][8]string{}
-	for i := range field {
-		for j := range field[i] {
-			field[i][j] = "."
+	for {
+		ok := solve()
+		if !ok {
+			return
 		}
-	}
-	queens := make([][2]int, k)
-	for i:=0;i<k;i++ {
-		r, c := scanInt2()
-		field[r][c] = "Q"
-		queens[i] = [2]int{r, c}
-	}
-	row := make([]int, 8)
-	for i := range row {
-		row[i] = i
-	}
-	column := make([]int, 8)
-	for i := range column {
-		column[i] = i
-	}
-	if field, ok := solve(row, column, queens); ok {
-		out(field)
-	}
-	for NextPermutation(sort.IntSlice(row)) {
-		for NextPermutation(sort.IntSlice(column)) {
-			if field, ok := solve(row, column, queens); ok {
-				out(field)
-			}
-		}
-	}
-	
-}
-func solve(r, c []int, queens [][2]int) ([8][8]int, bool) {
-	for i := 0;i<8;i++ {
-		if 
 	}
 }
 
-func NextPermutation(x sort.Interface) bool {
-	n := x.Len() - 1
-	if n < 1 {
+func solve() bool {
+	w, h := scanInt2()
+	if w == 0 && h == 0 {
 		return false
 	}
-	j := n - 1
-	for ; !x.Less(j, j+1); j-- {
-		if j == 0 {
-			return false
+	field := make([][]int, h)
+	for i := range field {
+		field[i] = scanIntSlice(w)
+	}
+	n := w*h
+	G := newGraph(n)
+	for i:=0;i<h;i++ {
+		for j:=0;j<w;j++ {
+			now := i*w + j
+			if field[i][j] == 0 {
+				continue
+			}
+			if j+1 < w && field[i][j+1] == 1{
+				nxt1 := now+1
+				G[now] = append(G[now], edge{to: nxt1})
+				G[nxt1] = append(G[nxt1], edge{to: now})
+			}
+			if i+1 < h && field[i+1][j] == 1{
+				nxt2 := now+h
+				G[now] = append(G[now], edge{to: nxt2})
+				G[nxt2] = append(G[nxt2], edge{to: now})
+			}
+			if j+1 < w && i+1 < h && field[i+1][j+1] == 1{
+				nxt3 := now+h+1
+				G[now] = append(G[now], edge{to: nxt3})
+				G[nxt3] = append(G[nxt3], edge{to: now})
+			}
 		}
 	}
-	l := n
-	for !x.Less(j, l) {
-		l--
+	groupNums := make([]int, n)
+	count := 1
+	var dfs func(p int)
+	dfs = func(p int) {
+		if groupNums[p] != 0 {
+			return
+		}
+		groupNums[p] = count
+		for _, e := range G[p] {
+			dfs(e.to)
+		}
 	}
-	x.Swap(j, l)
-	for k, l := j+1, n; k < l; {
-		x.Swap(k, l)
-		k++
-		l--
+	for i := 0;i<n;i++ {
+		if groupNums[i] != 0 {
+			continue
+		}
+		dfs(i)
+		count++
 	}
+	out(count)
 	return true
 }
 // ==================================================
@@ -376,6 +377,9 @@ func (h *Heap) Pop() interface{} {
 // stack and queue
 // =====================================================================================
 type Stack []int
+func NewStack() *Stack {
+	return &Stack{}
+}
 func (s *Stack) Push(v int) {
 	*s = append(*s, v)
 }
@@ -391,6 +395,9 @@ func (s *Stack) IsEmpty() bool {
 }
 // queue
 type Queue []int
+func NewQueue() *Queue {
+	return &Queue{}
+}
 func (q *Queue) Push(v int) {
 	*q = append(*q, v)
 }
