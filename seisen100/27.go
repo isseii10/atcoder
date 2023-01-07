@@ -16,80 +16,53 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	for {
-		ok := solve()
-		if !ok {
-			return
-		}
-	}
-}
-
-func solve() bool {
-	w, h := scanInt2()
-	if w == 0 && h == 0 {
-		return false
-	}
-	field := make([][]int, h)
-	for i := range field {
-		field[i] = scanIntSlice(w)
-	}
-	n := w*h
-	G := newGraph(n)
-	blacks := make([]int, 0)
-	for i:=0;i<h;i++ {
-		for j:=0;j<w;j++ {
-			now := i*w + j
-			if field[i][j] == 0 {
-				continue
-			}
-			blacks =append(blacks, now)
-			// 右
-			if j+1 < w && field[i][j+1] == 1{
-				nxt1 := now+1
-				G[now] = append(G[now], edge{to: nxt1})
-				G[nxt1] = append(G[nxt1], edge{to: now})
-			}
-			// 下
-			if i+1 < h && field[i+1][j] == 1{
-				nxt2 := now+w
-				G[now] = append(G[now], edge{to: nxt2})
-				G[nxt2] = append(G[nxt2], edge{to: now})
-			}
-			// 右下
-			if j+1 < w && i+1 < h && field[i+1][j+1] == 1{
-				nxt3 := now+w+1
-				G[now] = append(G[now], edge{to: nxt3})
-				G[nxt3] = append(G[nxt3], edge{to: now})
-			}
-			// 右上
-			if j+1 < w && i-1 >= 0 && field[i-1][j+1] == 1{
-				nxt4 := now-w+1
-				G[now] = append(G[now], edge{to: nxt4})
-				G[nxt4] = append(G[nxt4], edge{to: now})
-			}
-		}
-	}
-	groupNums := make([]int, n)
-	count := 0
-	var dfs func(p int)
-	dfs = func(p int) {
-		if groupNums[p] != 0 {
-			return
-		}
-		groupNums[p] = count
-		for _, e := range G[p] {
-			dfs(e.to)
-		}
-	}
-	for _, v := range blacks {
-		if groupNums[v] != 0 {
+	n := scanInt()
+	m := scanInt()
+	ice := make([][]int, m+2)
+	for i := range ice {
+		if i == 0 || i == len(ice)-1 {
+			ice[i] = make([]int, n+2)
 			continue
 		}
-		count++
-		dfs(v)
+		ice[i] = make([]int, 0)
+		ice[i] = append(ice[i], 0)
+		ice[i] = append(ice[i], scanIntSlice(n)...)
+		ice[i] = append(ice[i], 0)
 	}
-	out(count)
-	return true
+	var dfs func(y, x int, field [][]int) int
+	D := [][2]int{
+		{1, 0},
+		{0, 1},
+		{-1, 0},
+		{0, -1},
+	}
+	dfs = func(y, x int, field [][]int) int {
+		if field[y][x] == 0 {
+			return 0
+		}
+		field[y][x] = 0
+		ret := 0
+		for _, d := range D {
+			ny := y+d[0]
+			nx := x+d[1]
+			ret = max(ret, dfs(ny, nx, field)+1)
+		}
+		field[y][x] = 1
+		return ret
+	}
+	ans := 0
+	for i:=0;i<m;i++ {
+		for j:=0;j<n;j++ {
+			ii := i+1
+			jj := j+1
+			if ice[ii][jj] == 0 {
+				continue
+			}
+			tmp := dfs(ii, jj, ice)
+			ans = max(ans, tmp)
+		}
+	}
+	out(ans)
 }
 // ==================================================
 // init

@@ -16,80 +16,34 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	for {
-		ok := solve()
-		if !ok {
-			return
-		}
-	}
-}
-
-func solve() bool {
-	w, h := scanInt2()
-	if w == 0 && h == 0 {
-		return false
-	}
-	field := make([][]int, h)
-	for i := range field {
-		field[i] = scanIntSlice(w)
-	}
-	n := w*h
+	n, q := scanInt2()
 	G := newGraph(n)
-	blacks := make([]int, 0)
-	for i:=0;i<h;i++ {
-		for j:=0;j<w;j++ {
-			now := i*w + j
-			if field[i][j] == 0 {
+	for i:=0;i<n-1;i++ {
+		a, b := scanInt2()
+		a--
+		b--
+		G[a] = append(G[a], edge{to: b})
+		G[b] = append(G[b], edge{to: a})
+	}
+	counter := make([]int, n)
+	for i:=0;i<q;i++ {
+		p, x := scanInt2()
+		p--
+		counter[p] += x
+	}
+	var dfs func(p , pp int)
+	dfs = func(p, pp int) {
+		for _, e := range G[p] {
+			c := e.to
+			if pp == c {
 				continue
 			}
-			blacks =append(blacks, now)
-			// 右
-			if j+1 < w && field[i][j+1] == 1{
-				nxt1 := now+1
-				G[now] = append(G[now], edge{to: nxt1})
-				G[nxt1] = append(G[nxt1], edge{to: now})
-			}
-			// 下
-			if i+1 < h && field[i+1][j] == 1{
-				nxt2 := now+w
-				G[now] = append(G[now], edge{to: nxt2})
-				G[nxt2] = append(G[nxt2], edge{to: now})
-			}
-			// 右下
-			if j+1 < w && i+1 < h && field[i+1][j+1] == 1{
-				nxt3 := now+w+1
-				G[now] = append(G[now], edge{to: nxt3})
-				G[nxt3] = append(G[nxt3], edge{to: now})
-			}
-			// 右上
-			if j+1 < w && i-1 >= 0 && field[i-1][j+1] == 1{
-				nxt4 := now-w+1
-				G[now] = append(G[now], edge{to: nxt4})
-				G[nxt4] = append(G[nxt4], edge{to: now})
-			}
+			counter[e.to] += counter[p]
+			dfs(e.to, p)
 		}
 	}
-	groupNums := make([]int, n)
-	count := 0
-	var dfs func(p int)
-	dfs = func(p int) {
-		if groupNums[p] != 0 {
-			return
-		}
-		groupNums[p] = count
-		for _, e := range G[p] {
-			dfs(e.to)
-		}
-	}
-	for _, v := range blacks {
-		if groupNums[v] != 0 {
-			continue
-		}
-		count++
-		dfs(v)
-	}
-	out(count)
-	return true
+	dfs(0, -1)
+	outIntSlice(counter)
 }
 // ==================================================
 // init
