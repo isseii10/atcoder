@@ -13,12 +13,27 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
+
 func main() {
 	defer flush()
-	n, m := scanInt2()
-	
+	n := scanInt()
+	S := strings.Split(scanString(), "")
+	ans := make([]int, n-1)
+	for i:=1;i<n;i++ {
+		mx := 0
+		for j:=0;j<n;j++ {
+			if j+i < n && S[j] != S[j+i] {
+				continue
+			}
+			mx = j
+			break
+		}
+		ans[i-1] = max(ans[i-1], mx)
+	}
+	for _, v := range ans {
+		out(v)
+	}
 }
-
 // ==================================================
 // init
 // ==================================================
@@ -158,6 +173,7 @@ func flush() {
 	}
 }
 
+
 func atoi(s string) int {
 	i, e := strconv.Atoi(s)
 	if e != nil {
@@ -204,6 +220,7 @@ func max(arr ...int) int {
 	return res
 }
 
+
 func abs(a int) int {
 	if a > 0 {
 		return a
@@ -238,12 +255,10 @@ func modSub(a, b int) int {
 	}
 	return ret % mod
 }
-
 // modを法としてa*b
 func modMulti(a, b int) int {
 	return a * b % mod
 }
-
 // modを法としてa/b
 func modDiv(a, b int) int {
 	a %= mod
@@ -290,7 +305,6 @@ func modInvFermat(a, m int) int {
 // heap
 // =====================================================================================
 type Heap []int
-
 func NewHeap() *Heap {
 	return &Heap{}
 }
@@ -299,9 +313,9 @@ func (h Heap) IsEmpty() bool {
 }
 
 //heapインターフェースの実装 heap化はheap.Init(hq)
-func (h Heap) Len() int           { return len(h) }
-func (h Heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h Heap) Less(i, j int) bool { return h[i] < h[j] }
+func (h Heap) Len() int {return len(h)}
+func (h Heap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
+func (h Heap) Less(i, j int) bool {return h[i] < h[j]}
 
 func (h *Heap) Push(e interface{}) {
 	*h = append(*h, e.(int))
@@ -313,12 +327,10 @@ func (h *Heap) Pop() interface{} {
 	*h = old[:n-1]
 	return x
 }
-
 // =====================================================================================
 // stack and queue
 // =====================================================================================
 type Stack []int
-
 func NewStack() *Stack {
 	return &Stack{}
 }
@@ -335,10 +347,8 @@ func (s *Stack) Pop() int {
 func (s *Stack) IsEmpty() bool {
 	return len(*s) == 0
 }
-
 // queue
 type Queue []int
-
 func NewQueue() *Queue {
 	return &Queue{}
 }
@@ -352,12 +362,10 @@ func (q *Queue) Pop() int {
 	return x
 }
 func (q *Queue) IsEmpty() bool {
-	return len(*q) == 0
+	return len(*q) == 0 
 }
-
 // deque
 type Deque []int
-
 func NewDeque() *Deque {
 	return &Deque{}
 }
@@ -381,27 +389,25 @@ func (d *Deque) PopRight() int {
 	return x
 }
 func (d *Deque) IsEmpty() bool {
-	return len(*d) == 0
+	return len(*d) == 0 
 }
+
 
 // =====================================================================================
 // Graph
 // =====================================================================================
 type edge struct {
-	to   int
+	to int
 	cost int
 }
 type Edges []edge
 type Graph []Edges
-
 func newGraph(n int) Graph {
 	return make([]Edges, n)
 }
-
 // Edgesのcostでのsortを可能にするためのsort.interfaceを実装
-func (e Edges) Len() int           { return len(e) }
-func (e Edges) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
-func (e Edges) Less(i, j int) bool { return e[i].cost < e[j].cost }
-
+func (e Edges) Len() int {return len(e)}
+func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
+func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
 // asc: sort.Sort(graph[i])
 // desc: sort.Sort(sort.Reverse(graph[i]))

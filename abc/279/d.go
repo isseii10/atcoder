@@ -15,16 +15,34 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	A, B := scanInt2()
-	if A <= B {
-		out(A)
+	A := scanFloat()
+	B := scanFloat()
+	ret := calc(A, B)
+	if ret <= 0 {
+		out(fmt.Sprintf("%.10f", A))
+		return
 	}
-	if A <= 2 * B {
-		
+	if float64(A) <= ret {
+		out(fmt.Sprintf("%.10f", A))
+		return
 	}
-	if A > 2 * B {
+	out(fmt.Sprintf("%.10f", ret))
+}
 
+func calc(a, b float64) float64 {
+	aPow := math.Pow(a, float64(2))
+	bPow := math.Pow(b, float64(2))
+	aPow2 := math.Pow(aPow, float64(1)/float64(3))
+	bPow2 := math.Pow(4*bPow, float64(1)/float64(3))
+	x := aPow2 / bPow2
+	xInt := int(x)
+	xInt2 := int(x)+1
+	ret1 := a * math.Pow(float64(xInt), -float64(1)/float64(2)) + b * (float64(xInt)-1)
+	ret2 := a * math.Pow(float64(xInt2), -float64(1)/float64(2)) + b * (float64(xInt2)-1)
+	if ret1 <= ret2 {
+		return ret1
 	}
+	return ret2
 }
 
 // ==================================================

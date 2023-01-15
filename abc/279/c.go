@@ -27,12 +27,8 @@ func main() {
 	SMap := columns(S, H, W)
 	TMap := columns(T, H, W)
 	for k, v := range SMap {
-		if _, ok := TMap[k]; !ok {
-			out("No")
-			return
-		}
-		v2 := TMap[k]
-		if v != v2 {
+		v2, ok := TMap[k]
+		if !ok || v != v2 {
 			out("No")
 			return
 		}
@@ -40,16 +36,17 @@ func main() {
 	out("Yes")
 }
 func columns(S [][]string, h, w int) map[string]int {
-	cs := make([]string, w)
 	ret := make(map[string]int)
 	for j:=0;j<w;j++ {
+		sl := make([]string, 0)
 		for i:=0;i<h;i++ {
-			cs[j] = cs[j] + S[i][j]
+			sl = append(sl, S[i][j])
 		}
-		if _, ok := ret[cs[j]]; !ok {
-			ret[cs[j]] = 0
+		col := strings.Join(sl, "")
+		if _, ok := ret[col]; !ok {
+			ret[col] = 0
 		}
-		ret[cs[j]]++
+		ret[col]++
 	}
 	return ret
 }

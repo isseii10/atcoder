@@ -13,12 +13,70 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
+
 func main() {
 	defer flush()
-	n, m := scanInt2()
+	n := scanInt()
+	before := make([]string, n)
+	after := make([]string, n)
+	names := make([]string, 0)
+	exits := make(map[string]bool)
+	for i:=0;i<n;i++ {
+		s := scanString()
+		t := scanString()
+		before[i] = s
+		after[i] = t
+		if _, ok := exits[s]; !ok {
+			exits[s] = true
+			names = append(names, s)
+		}
+		if _, ok := exits[t]; !ok {
+			exits[t] = true
+			names = append(names, t)
+		}
+	}
+	toIdx := make(map[string]int)
+	for i, v := range names {
+		toIdx[v] = i
+	}
+	G := make([][]int, len(names))
+	for i := range G {
+		G[i] = make([]int, 0)
+	}
+	for i:=0;i<n;i++ {
+		b := toIdx[before[i]]
+		a := toIdx[after[i]]
+		G[b] = append(G[b], a)
+	}
+	// ここから
+	visited := make([]int, len(names))
+	var ok bool
+	var dfs func(p int)
+	dfs = func(p int) {
+		if visited[p] == 1 {
+			ok = false
+			return
+		}
+		if visited[p] == 2 {
+			return
+		}
+		visited[p] = 1
+		for _, c := range G[p] {
+			dfs(c)
+		}
+		visited[p] = 2
+	}
 	
+	for i:=0;i<len(names);i++ {
+		ok = true
+		dfs(i)
+		if !ok {
+			out("No")
+			return
+		}
+	}
+	out("Yes")
 }
-
 // ==================================================
 // init
 // ==================================================
@@ -158,6 +216,7 @@ func flush() {
 	}
 }
 
+
 func atoi(s string) int {
 	i, e := strconv.Atoi(s)
 	if e != nil {
@@ -204,6 +263,7 @@ func max(arr ...int) int {
 	return res
 }
 
+
 func abs(a int) int {
 	if a > 0 {
 		return a
@@ -238,12 +298,10 @@ func modSub(a, b int) int {
 	}
 	return ret % mod
 }
-
 // modを法としてa*b
 func modMulti(a, b int) int {
 	return a * b % mod
 }
-
 // modを法としてa/b
 func modDiv(a, b int) int {
 	a %= mod
@@ -290,7 +348,6 @@ func modInvFermat(a, m int) int {
 // heap
 // =====================================================================================
 type Heap []int
-
 func NewHeap() *Heap {
 	return &Heap{}
 }
@@ -299,9 +356,9 @@ func (h Heap) IsEmpty() bool {
 }
 
 //heapインターフェースの実装 heap化はheap.Init(hq)
-func (h Heap) Len() int           { return len(h) }
-func (h Heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h Heap) Less(i, j int) bool { return h[i] < h[j] }
+func (h Heap) Len() int {return len(h)}
+func (h Heap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
+func (h Heap) Less(i, j int) bool {return h[i] < h[j]}
 
 func (h *Heap) Push(e interface{}) {
 	*h = append(*h, e.(int))
@@ -313,12 +370,10 @@ func (h *Heap) Pop() interface{} {
 	*h = old[:n-1]
 	return x
 }
-
 // =====================================================================================
 // stack and queue
 // =====================================================================================
 type Stack []int
-
 func NewStack() *Stack {
 	return &Stack{}
 }
@@ -335,10 +390,8 @@ func (s *Stack) Pop() int {
 func (s *Stack) IsEmpty() bool {
 	return len(*s) == 0
 }
-
 // queue
 type Queue []int
-
 func NewQueue() *Queue {
 	return &Queue{}
 }
@@ -352,12 +405,10 @@ func (q *Queue) Pop() int {
 	return x
 }
 func (q *Queue) IsEmpty() bool {
-	return len(*q) == 0
+	return len(*q) == 0 
 }
-
 // deque
 type Deque []int
-
 func NewDeque() *Deque {
 	return &Deque{}
 }
@@ -381,27 +432,25 @@ func (d *Deque) PopRight() int {
 	return x
 }
 func (d *Deque) IsEmpty() bool {
-	return len(*d) == 0
+	return len(*d) == 0 
 }
+
 
 // =====================================================================================
 // Graph
 // =====================================================================================
 type edge struct {
-	to   int
+	to int
 	cost int
 }
 type Edges []edge
 type Graph []Edges
-
 func newGraph(n int) Graph {
 	return make([]Edges, n)
 }
-
 // Edgesのcostでのsortを可能にするためのsort.interfaceを実装
-func (e Edges) Len() int           { return len(e) }
-func (e Edges) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
-func (e Edges) Less(i, j int) bool { return e[i].cost < e[j].cost }
-
+func (e Edges) Len() int {return len(e)}
+func (e Edges) Swap(i, j int) {e[i], e[j] = e[j], e[i]}
+func (e Edges) Less(i, j int) bool {return e[i].cost < e[j].cost}
 // asc: sort.Sort(graph[i])
 // desc: sort.Sort(sort.Reverse(graph[i]))
