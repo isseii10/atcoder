@@ -16,65 +16,26 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	n := scanInt()
-	before := make([]string, n)
-	after := make([]string, n)
-	names := make([]string, 0)
-	exits := make(map[string]bool)
-	for i:=0;i<n;i++ {
-		s := scanString()
-		t := scanString()
-		before[i] = s
-		after[i] = t
-		if _, ok := exits[s]; !ok {
-			exits[s] = true
-			names = append(names, s)
+	N := scanInt()
+	S := strings.Split(scanString(), "")
+	na := make([]string, N+1)
+	for i := range na {
+		if i+1 >= N {
+			na[i] = ""
+			continue
 		}
-		if _, ok := exits[t]; !ok {
-			exits[t] = true
-			names = append(names, t)
+		if S[i] == "n" && S[i+1] == "a" {
+			na[i] = "y"
+		} else {
+			na[i] = ""
 		}
 	}
-	toIdx := make(map[string]int)
-	for i, v := range names {
-		toIdx[v] = i
+	ans := ""
+	for i := range S {
+		ans += S[i]
+		ans += na[i]
 	}
-	G := make([][]int, len(names))
-	for i := range G {
-		G[i] = make([]int, 0)
-	}
-	for i:=0;i<n;i++ {
-		b := toIdx[before[i]]
-		a := toIdx[after[i]]
-		G[b] = append(G[b], a)
-	}
-	// ここから
-	visited := make([]int, len(names))
-	ok := true
-	var dfs func(p int)
-	dfs = func(p int) {
-		if visited[p] == 1 {
-			ok = false
-			return
-		}
-		if visited[p] == 2 {
-			return
-		}
-		visited[p] = 1
-		for _, c := range G[p] {
-			dfs(c)
-		}
-		visited[p] = 2
-	}
-	
-	for i:=0;i<len(names);i++ {
-		dfs(i)
-		if !ok {
-			out("No")
-			return
-		}
-	}
-	out("Yes")
+	out(ans)
 }
 // ==================================================
 // init

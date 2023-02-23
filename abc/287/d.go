@@ -16,65 +16,40 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	n := scanInt()
-	before := make([]string, n)
-	after := make([]string, n)
-	names := make([]string, 0)
-	exits := make(map[string]bool)
-	for i:=0;i<n;i++ {
-		s := scanString()
-		t := scanString()
-		before[i] = s
-		after[i] = t
-		if _, ok := exits[s]; !ok {
-			exits[s] = true
-			names = append(names, s)
+	S := strings.Split(scanString(), "")
+	n := len(S)
+	T := strings.Split(scanString(), "")
+	m := len(T)
+	okP := make([]bool, m+1)
+	okB := make([]bool, m+1)
+	okP[0] = true
+	okB[m] = true
+	for i:=0;i<m;i++ {
+		// S'に追加されるS[i]
+		oki := true
+		if !(S[i] == T[i] || S[i] == "?" || T[i] == "?") {
+			oki = false
 		}
-		if _, ok := exits[t]; !ok {
-			exits[t] = true
-			names = append(names, t)
-		}
+		okP[i+1] = okP[i] && oki
+
 	}
-	toIdx := make(map[string]int)
-	for i, v := range names {
-		toIdx[v] = i
-	}
-	G := make([][]int, len(names))
-	for i := range G {
-		G[i] = make([]int, 0)
-	}
-	for i:=0;i<n;i++ {
-		b := toIdx[before[i]]
-		a := toIdx[after[i]]
-		G[b] = append(G[b], a)
-	}
-	// ここから
-	visited := make([]int, len(names))
-	ok := true
-	var dfs func(p int)
-	dfs = func(p int) {
-		if visited[p] == 1 {
-			ok = false
-			return
+	for i:=m-1;i>=0;i-- {
+		// S'に追加(逆順)
+		oki := true
+		if !(S[n-1 - (m-1) + i] == T[i] || S[n-1 - (m-1) + i] == "?" || T[i] == "?") {
+			oki = false
 		}
-		if visited[p] == 2 {
-			return
+		okB[i] = okB[i+1] && oki
+
+	}
+	for x:=0;x<=m;x++ {
+		if okP[x] && okB[x] {
+			out("Yes")
+			continue
 		}
-		visited[p] = 1
-		for _, c := range G[p] {
-			dfs(c)
-		}
-		visited[p] = 2
+		out("No")
 	}
 	
-	for i:=0;i<len(names);i++ {
-		dfs(i)
-		if !ok {
-			out("No")
-			return
-		}
-	}
-	out("Yes")
 }
 // ==================================================
 // init

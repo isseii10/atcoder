@@ -13,68 +13,66 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 var wtr = bufio.NewWriter(os.Stdout)
 
+type UnionFind struct {
+	n    int
+	root []int
+}
+
+func NewUnionFind(n int) UnionFind {
+	root := make([]int, n)
+	for i := 0; i < n; i++ {
+		root[i] = -1
+	}
+	uf := UnionFind{n: n, root: root}
+	return uf
+}
+func (u *UnionFind) Find(x int) int {
+	if u.root[x] < 0 {
+		return x
+	}
+	u.root[x] = u.Find(u.root[x])
+	return u.root[x]
+}
+func (u *UnionFind) Union(x, y int) {
+	x = u.Find(x)
+	y = u.Find(y)
+	if x == y {
+		return
+	}
+	if -u.root[x] < -u.root[y] {
+		x, y = y, x
+	} // xの方がサイズ大きいように
+	u.root[x] += u.root[y]
+	u.root[y] = x
+}
+func (u *UnionFind) IsSame(x, y int) bool {
+	return u.Find(x) == u.Find(y)
+}
+func (u *UnionFind) Size(x int) int {
+	return -u.root[u.Find(x)]
+}
+
 
 func main() {
 	defer flush()
-	n := scanInt()
-	before := make([]string, n)
-	after := make([]string, n)
-	names := make([]string, 0)
-	exits := make(map[string]bool)
-	for i:=0;i<n;i++ {
-		s := scanString()
-		t := scanString()
-		before[i] = s
-		after[i] = t
-		if _, ok := exits[s]; !ok {
-			exits[s] = true
-			names = append(names, s)
-		}
-		if _, ok := exits[t]; !ok {
-			exits[t] = true
-			names = append(names, t)
-		}
+	n, m := scanInt2()
+	edges := make([][2]int, m)
+	for i := range edges {
+		a, b := scanInt2()
+		a--
+		b--
+		edges[i] = [2]int{a, b}
 	}
-	toIdx := make(map[string]int)
-	for i, v := range names {
-		toIdx[v] = i
-	}
-	G := make([][]int, len(names))
-	for i := range G {
-		G[i] = make([]int, 0)
-	}
-	for i:=0;i<n;i++ {
-		b := toIdx[before[i]]
-		a := toIdx[after[i]]
-		G[b] = append(G[b], a)
-	}
-	// ここから
-	visited := make([]int, len(names))
-	ok := true
-	var dfs func(p int)
-	dfs = func(p int) {
-		if visited[p] == 1 {
-			ok = false
-			return
+	ans := 0
+	uf := NewUnionFind(n)
+	for _, v := range edges {
+		if uf.IsSame(v[0], v[1]) {
+			ans++
+			continue
 		}
-		if visited[p] == 2 {
-			return
-		}
-		visited[p] = 1
-		for _, c := range G[p] {
-			dfs(c)
-		}
-		visited[p] = 2
+		uf.Union(v[0], v[1])
 	}
-	
-	for i:=0;i<len(names);i++ {
-		dfs(i)
-		if !ok {
-			out("No")
-			return
-		}
-	}
-	out("Yes")
+out(ans)
 }
 // ==================================================
 // init

@@ -16,65 +16,38 @@ var wtr = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer flush()
-	n := scanInt()
-	before := make([]string, n)
-	after := make([]string, n)
-	names := make([]string, 0)
-	exits := make(map[string]bool)
-	for i:=0;i<n;i++ {
-		s := scanString()
-		t := scanString()
-		before[i] = s
-		after[i] = t
-		if _, ok := exits[s]; !ok {
-			exits[s] = true
-			names = append(names, s)
-		}
-		if _, ok := exits[t]; !ok {
-			exits[t] = true
-			names = append(names, t)
-		}
+	n, x := scanInt2()
+	A, B := scanIntSlice2(n)
+	maxB := 0
+	for _, v := range B {
+		maxB = max(maxB, v)
 	}
-	toIdx := make(map[string]int)
-	for i, v := range names {
-		toIdx[v] = i
-	}
-	G := make([][]int, len(names))
-	for i := range G {
-		G[i] = make([]int, 0)
-	}
-	for i:=0;i<n;i++ {
-		b := toIdx[before[i]]
-		a := toIdx[after[i]]
-		G[b] = append(G[b], a)
-	}
-	// ここから
-	visited := make([]int, len(names))
-	ok := true
-	var dfs func(p int)
-	dfs = func(p int) {
-		if visited[p] == 1 {
-			ok = false
-			return
+	mp := make([]bool, x+1)
+	mp[0] = true
+	for i := 0;i<n;i++ {
+		mp2 := make([]bool, x+1)
+		copy(mp2, mp)
+		for j:=0;j<maxB+1;j++ {
+			if B[i] < j {
+				continue
+			}
+			for k:=0;k<=x;k++ {
+				// 使うのはA[i]*j
+				if mp[k] {
+					if k+A[i]*j > x {
+						continue
+					}
+					mp2[k+A[i]*j] = true
+				}
+			}
 		}
-		if visited[p] == 2 {
-			return
-		}
-		visited[p] = 1
-		for _, c := range G[p] {
-			dfs(c)
-		}
-		visited[p] = 2
+		copy(mp, mp2)
 	}
-	
-	for i:=0;i<len(names);i++ {
-		dfs(i)
-		if !ok {
-			out("No")
-			return
-		}
+	if mp[x] {
+		out("Yes")
+	} else {
+		out("No")
 	}
-	out("Yes")
 }
 // ==================================================
 // init
